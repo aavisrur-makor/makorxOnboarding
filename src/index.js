@@ -1,17 +1,25 @@
-import React from 'react';
+import { createTheme, ThemeProvider } from '@material-ui/core';
+import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ChiefProvider from './components/ChiefProvider';
+import './index.css';
+
+const theme = createTheme({
+  typography: {
+    fontSize: 12,
+    htmlFontSize: 13,
+    fontFamily: '"Work Sans", "Roboto"',
+  },
+});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <StrictMode>
+    <ThemeProvider theme={theme}>
+      <ChiefProvider>
+        <App />
+      </ChiefProvider>
+    </ThemeProvider>
+  </StrictMode>,
   document.getElementById('root')
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

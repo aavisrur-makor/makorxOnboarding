@@ -8,10 +8,6 @@ const ProgressBar = () => {
   const { progress } = authState;
   const classes = useStyles();
 
-  useEffect(() => {
-    console.log("progress progresss", progress);
-  }, []);
-
   return (
     <Box className={classes.progressContainer}>
       <Typography className={classes.progressTitle} component="p">

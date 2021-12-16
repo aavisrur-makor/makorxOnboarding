@@ -3,7 +3,7 @@ import axios from "axios";
 import { makeStyles, TextField } from "@material-ui/core";
 import FieldContext from "../context/fields";
 import AuthContext from "../context/auth";
-
+import { BASE_URL, END_POINT } from "../constant";
 import { useDebouncedCallback } from "use-debounce";
 
 const useStyles = makeStyles((theme) => ({
@@ -38,19 +38,36 @@ const DispatcherField = (props) => {
   const classes = useStyles();
 
   const handleChange = async (e) => {
-    console.log("handling change in dispatcher", e.target.value);
-    const fieldToUpdate = {
-      field: e.target.id,
-      value: fieldState[e.target.id],
-    };
-    console.log("FIELD TO UPDATE", fieldToUpdate);
-    console.log("about to putting in fields", authState);
-    console.log("putting in fields");
+    let field = {};
+    if (e.target.id === "registration_gapi_location") {
+      field = {
+        fieldToUpdate: {
+          field: e.target.id,
+          value: [
+            {
+              name: "11 Derech Menachem Begin",
+              location: { lat: 100.123456, lon: -90.987654 },
+            },
+          ],
+        },
+      };
+    } else if (e.target.id === "email") {
+      field = {
+        fieldToUpdate: {
+          field: e.target.id,
+          value: [fieldState[e.target.id]],
+        },
+      };
+    } else {
+      field = {
+        fieldToUpdate: {
+          field: e.target.id,
+          value: fieldState[e.target.id],
+        },
+      };
+    }
     axios
-      .put(
-        `http://10.0.0.191:3030/api/onboarding/${authState.uuid}`,
-        fieldToUpdate
-      )
+      .put(`${BASE_URL}${END_POINT.onboarding}${authState.uuid}`, field)
       .then((res) => {
         if (res.status === 200) {
           setAuthState((prev) => ({
@@ -73,7 +90,6 @@ const DispatcherField = (props) => {
       fullWidth
       onChange={(e) => {
         setFieldState((prev) => {
-          console.log("previous field state", e.target.value);
           return {
             ...prev,
             [props.id]: e.target.value,

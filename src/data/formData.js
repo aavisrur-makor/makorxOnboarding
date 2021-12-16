@@ -1,7 +1,7 @@
 export default {
   form1: {
     grid1: [
-      { id: "company_entity_id", label: "Company", type: "select" },
+      { id: "company_entity_id", label: "Company", type: "auto-complete" },
       { id: "legal_entity_name", label: "Legal Entity Name", type: "text" },
       {
         id: "legal_entity_identifier",
@@ -15,25 +15,25 @@ export default {
         label: "Address",
         type: "text",
       },
-      { id: "country", label: "Country", type: "select" },
+      { id: "country_id", label: "Country", type: "auto-complete" },
       {
-        id: "us_state",
+        id: "us_state_id",
         label: "State",
-        type: "select",
+        type: "auto-complete",
       },
     ],
     grid3: [
-      { id: "regulator", label: "Regulator", type: "text" },
+      { id: "regulator", label: "Regulator", type: "auto-complete" },
       { id: "regulation_number", label: "Regulation Number", type: "text" },
       { id: "activity_description", label: "Comment", type: "textarea" },
       {
         id: "onboarding_has_company_entity_asset",
         label: "Products",
-        type: "checkbox",
+        type: "checkboxArray",
       },
-      { id: "contact_position", label: "Position", type: "select" },
-      { id: "contact_name", label: "Name", type: "text" },
-      { id: "contact_email", label: "Info", type: "text" },
+      { id: "contact_position_id", label: "Position", type: "auto-complete" },
+      { id: "name", label: "Name", type: "text" },
+      { id: "email", label: "Info", type: "text" },
     ],
   },
   form2: [

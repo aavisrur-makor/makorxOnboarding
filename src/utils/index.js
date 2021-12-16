@@ -1,14 +1,14 @@
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography } from "@material-ui/core";
 
 const isNotEmptyValue = (value) => {
-  console.log('TRIM', value);
-  return value?.trim() !== '';
+  console.log("TRIM", value);
+  return value?.trim() !== "";
 };
 
 const findNonEmptyValues = (state) => {
   let nonEmptyFields = 0;
   Object.entries(state).forEach(([key, value]) => {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       isNotEmptyValue(value) && nonEmptyFields++;
     } else if (value) {
       nonEmptyFields++;
@@ -34,7 +34,7 @@ const handleEntireSection = (sectionNum, section, classes) => {
   let hasContentKey = false;
 
   Object.keys(section).forEach((key) => {
-    if (key === 'title') {
+    if (key === "title") {
       finalArray.push(
         <Grid item>
           <Typography className={classes.termsOfUseSectionTitle}>
@@ -42,7 +42,7 @@ const handleEntireSection = (sectionNum, section, classes) => {
           </Typography>
         </Grid>
       );
-    } else if (key === 'content') {
+    } else if (key === "content") {
       hasContentKey = true;
       finalArray.push(
         <Grid item>
@@ -52,13 +52,13 @@ const handleEntireSection = (sectionNum, section, classes) => {
         </Grid>
       );
     } else if (Number.isInteger(Number(key))) {
-      if (typeof section[key] === 'string')
+      if (typeof section[key] === "string")
         finalArray.push(
           <Grid item>
             <Typography className={classes.termsOfUseSection}>
               <Typography
                 className={classes.termsOfUseSectionNum}
-                component='span'
+                component="span"
               >
                 {sectionNum}.{key}.
               </Typography>
@@ -73,8 +73,6 @@ const handleEntireSection = (sectionNum, section, classes) => {
               {handleSubSection(sectionNum, key, section[key], classes)}
             </Grid>
           </Grid>
-          // <Typography><Grid>
-          // </Typography>
         );
     }
   });
@@ -86,7 +84,7 @@ const handleSubSection = (sectionNum, subSectionNum, subSection, classes) => {
   let finalArray = [];
 
   Object.keys(subSection).forEach((key) => {
-    if (key === 'title') {
+    if (key === "title") {
       finalArray.push(
         <Grid item>
           <Typography>
@@ -100,7 +98,7 @@ const handleSubSection = (sectionNum, subSectionNum, subSection, classes) => {
           <Typography>
             <Typography className={classes.termsOfUseSectionNum}>
               {sectionNum}.{subSectionNum}.{key}.
-            </Typography>{' '}
+            </Typography>{" "}
             {subSection[key]}
           </Typography>
         </Grid>
@@ -113,23 +111,23 @@ const handleSubSection = (sectionNum, subSectionNum, subSection, classes) => {
 const createTermsAppendixContent = (appendix, classes) => {
   let finalArray = [];
   Object.keys(appendix).forEach((sectionNum, i) => {
-    if (sectionNum.includes('A - ')) {
-      if (typeof appendix[sectionNum] === 'string') {
+    if (sectionNum.includes("A - ")) {
+      if (typeof appendix[sectionNum] === "string") {
         finalArray.push(
           <Grid item>
             <Typography className={classes.termsOfUseSection}>
               <Typography
                 className={classes.termsOfUseSectionTitle}
-                component='span'
+                component="span"
               >
-                {sectionNum.replace(' - ', '.')}
-                {'. '}
+                {sectionNum.replace(" - ", ".")}
+                {". "}
               </Typography>
               {appendix[sectionNum]}
             </Typography>
           </Grid>
         );
-      } else if (typeof appendix[sectionNum] === 'object')
+      } else if (typeof appendix[sectionNum] === "object")
         finalArray.push(
           handleAppendixSubSection(appendix[sectionNum], classes)
         );
@@ -142,15 +140,15 @@ const createTermsAppendixContent = (appendix, classes) => {
 const handleAppendixSubSection = (subSections, classes) => {
   let finalArray = [];
   Object.keys(subSections).forEach((sectionNum, i) => {
-    if (sectionNum === 'content') {
+    if (sectionNum === "content") {
       finalArray.push(
         <Grid item>
           <Typography className={classes.termsOfUseSection}>
             <Typography
               className={classes.termsOfUseSectionTitle}
-              component='span'
+              component="span"
             >
-              {'A.9 '}
+              {"A.9 "}
             </Typography>
             {subSections[sectionNum]}
           </Typography>

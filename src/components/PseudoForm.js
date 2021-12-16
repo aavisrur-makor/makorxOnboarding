@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useContext } from "react";
+import React, { useEffect, useLayoutEffect, useContext, useState } from "react";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
 import DispatcherField from "./DispatcherField";
 import formData from "../data/formData";
@@ -8,11 +8,11 @@ import {
   FormControlLabel,
   withStyles,
 } from "@material-ui/core";
-import CountryAutoComplete from "./CountryAutoComplete";
 import FieldContext from "../context/fields";
-import CustomSelect from "./CustomSelect";
-import countries from "../data/countries";
-
+import AuthContext from "../context/auth";
+import CustomAutoComplete from "./CutomAutoComplete";
+import axios from "axios";
+import { BASE_URL, END_POINT } from "../constant";
 // const steps = [
 //   "Submit on-boarding documentation",
 //   "Attach documents",
@@ -62,30 +62,68 @@ const useStyles = makeStyles((theme) => ({
 
 const PseudoForm = function (props) {
   const { fieldState, setFieldState } = useContext(FieldContext);
+  const { authState } = useContext(AuthContext);
+  const [products, setProducts] = useState([]);
   const { steps } = props;
   const classes = useStyles();
 
+  useEffect(() => {
+    axios
+      .get(
+        `${BASE_URL}${END_POINT.UTILS}${END_POINT.assets}${authState.companyForProducts}`
+      )
+      .then((res) => {
+        console.log("product DETAILS", res);
+        setProducts(res.data);
+      });
+  }, [authState.companyForProducts]);
   useLayoutEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const handleChange = (e, type) => {
-    if (type === "checkbox") {
-      console.log(
-        "🚀 ~ file: PseudoForm.js ~ line 73 ~ handleChange ~ type",
-        e.target.checked,
-        e.target.id
+  const handleChange = (e, type, product, i) => {
+    setFieldState((prev) => {
+      const index = prev.onboarding_has_company_entity_asset.findIndex(
+        (str) => str === product.name
       );
-      setFieldState((prev) => ({
-        ...prev,
-        // [e.target[type === "select" ? "name" : "id"]]: e.target.value,
-        [e.target.id]: e.target.checked,
-      }));
+
+      if (index === -1) {
+        return {
+          ...prev,
+          onboarding_has_company_entity_asset: [
+            ...prev.onboarding_has_company_entity_asset,
+            product.name,
+          ],
+        };
+      } else
+        return {
+          ...prev,
+          onboarding_has_company_entity_asset:
+            prev.onboarding_has_company_entity_asset.filter(
+              (curr_item, curr_index) => {
+                return curr_item[curr_index] !== curr_item[index];
+              }
+            ),
+        };
+    });
+
+    e.preventDefault();
+    if (type === "checkboxArray") {
+      const field = {
+        fieldToUpdate: {
+          field: e.target.id,
+          value: product.name,
+          isAdd: e.target.checked,
+        },
+      };
+      axios
+        .put(`${BASE_URL}${END_POINT.onboarding}${authState.uuid}`, field)
+        .then((res) => {})
+        .catch((err) => console.log(err));
     } else if (type === "") {
     } else
       setFieldState((prev) => ({
         ...prev,
-        // [e.target[type === "select" ? "name" : "id"]]: e.target.value,
         [e.target[e.target.name ? "name" : "id"]]: e.target.value,
       }));
   };
@@ -111,35 +149,30 @@ const PseudoForm = function (props) {
           rows={9}
         />
       );
-    } else if (type === "select") {
-      component = (
-        <CustomSelect
-          options={countries}
-          handleChange={(e) => handleChange(e, type)}
-          label={label}
-          id={id}
-        />
-      );
-    } else if (type === "checkbox") {
-      console.log(
-        "🚀 ~ file: PseudoForm.js ~ line 117 ~ renderAppropriately ~ fieldState[id]",
-        fieldState[id],
-        id
-      );
-      component = (
-        <FormControlLabel
-          control={
-            <Checkbox
-              id={id}
-              value={fieldState[id]}
-              onChange={(e) => handleChange(e, type)}
-            />
-          }
-          label={label}
-          labelPlacement="top"
-          id={id}
-        />
-      );
+    } else if (type === "auto-complete") {
+      component = <CustomAutoComplete label={label} dataKey={label} id={id} />;
+    } else if (type === "checkboxArray") {
+      component = products.map((product, i) => {
+        return (
+          <FormControlLabel
+            style={{ display: "flex" }}
+            control={
+              <Checkbox
+                key={id}
+                id={id}
+                value={product.name}
+                checked={fieldState.onboarding_has_company_entity_asset.includes(
+                  product.name
+                )}
+                onChange={(e) => handleChange(e, type, product, i)}
+              />
+            }
+            label={product.name}
+            labelPlacement="right"
+            id={id}
+          />
+        );
+      });
     }
     return (
       <Grid item xs={12} md={6}>
@@ -182,9 +215,7 @@ export default PseudoForm;
 
 export const StyledTextField = withStyles((theme) => ({
   root: {
-    // border: "solid #3F3073",
     color: "#6d6d6d",
-    // marginTop: "20px",
     textAlign: "center",
   },
 }))(TextField);

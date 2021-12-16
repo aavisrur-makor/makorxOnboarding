@@ -1,30 +1,31 @@
-import React, { useEffect, useContext } from 'react';
-import { Box } from '@material-ui/core';
-import { Stepper } from '@material-ui/core';
-import { Step } from '@material-ui/core';
-import { StepButton, Grid } from '@material-ui/core';
-import { Button } from '@material-ui/core';
-import { Typography, makeStyles } from '@material-ui/core';
-import PseudoForm from './PseudoForm';
-import FileForm from './FileForm';
-import TermsForm from './TermsForm';
-import ProgressBar from './ProgressBar';
-import axios from 'axios';
-import FieldContext from '../context/fields';
-import FileContext from '../context/files';
-import AuthContext from '../context/auth';
+import React, { useEffect, useContext } from "react";
+import { Box } from "@material-ui/core";
+import { Stepper } from "@material-ui/core";
+import { Step } from "@material-ui/core";
+import { StepButton, Grid } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import { Typography, makeStyles } from "@material-ui/core";
+import PseudoForm from "./PseudoForm";
+import FileForm from "./FileForm";
+import TermsForm from "./TermsForm";
+import ProgressBar from "./ProgressBar";
+import axios from "axios";
+import FieldContext from "../context/fields";
+import FileContext from "../context/files";
+import AuthContext from "../context/auth";
 
-import { useParams } from 'react-router';
-import StyledButton from './StyledButton';
-import { useStyles as useMixins } from '../styles/mixins';
-import { useStyles } from '../styles/UiForm';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { useParams } from "react-router";
+import StyledButton from "./StyledButton";
+import { useStyles as useMixins } from "../styles/mixins";
+import { useStyles } from "../styles/UiForm";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { useTheme } from '@material-ui/core';
-import MobileStepper from './MobileStepper';
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import { useTheme } from "@material-ui/core";
+import MobileStepper from "./MobileStepper";
+import { BASE_URL, END_POINT } from "../constant";
 
-const steps = ['Submit Documentation', 'Attach Documents', 'Terms of Use'];
+const steps = ["Submit Documentation"]; 
 
 const StepperFormComplex = () => {
   const classes = useStyles();
@@ -35,48 +36,28 @@ const StepperFormComplex = () => {
   const { authState, setAuthState } = useContext(AuthContext);
   const params = useParams();
   const theme = useTheme();
-  const queryMatch = useMediaQuery('(max-width:800px)');
+  const queryMatch = useMediaQuery("(max-width:800px)");
 
-  console.log('statetest', authState);
+ 
 
-  useEffect(() => {
-    console.log('uuid useeffect', params.uuid);
+  useEffect(() => { 
     setAuthState((prev) => ({ ...prev, uuid: params.uuid }));
     if (params.uuid) {
-      const fieldCall = axios.get(
-          `http://10.0.0.191:3030/api/onboarding/${params.uuid}`
-        ),
-        fileCall = axios.get(
-          `http://10.0.0.191:3030/api/document/${params.uuid}`
-        );
+      const fieldCall = axios
+        .get(`${BASE_URL}${END_POINT.onboarding}${params.uuid}`)
+        .then((res) => { 
+          const textFields = res.data;
+          const textFieldAfterParse = {
+            ...textFields,
+            email: JSON.parse(res.data.email)[0],
+          };
 
-      axios
-        .all([fieldCall, fileCall])
-        .then(
-          axios.spread((res1, res2) => {
-            console.log('RES 1', res1);
-            console.log('RES2', res2);
-            const textFields = res1.data;
-            const fileFields = res2.data;
-
-            res2.data.forEach((file) => {
-              console.log('FILE INSIDE THE FOREA', file);
-
-              console.log('fileName', file.file_boarding_name);
-              fileFields[file.document_type_name] = file.boarding_name;
-            });
-            console.log('FILE FIELDS AFTER INSERT', fileFields);
-            const fullData = { ...textFields, ...fileFields };
-            setFieldState((prev) => ({ ...prev, ...textFields }));
-            setFileState((prev) => ({ ...prev, ...fileFields }));
-            setAuthState((prev) => ({
-              ...prev,
-              progress: res1.data.progress,
-            }));
-          })
-        )
-        .catch((err) => {
-          console.log('inside the error', err);
+          setFieldState((prev) => ({ ...prev, ...textFieldAfterParse }));
+          setAuthState((prev) => ({
+            ...prev,
+            progress: res.data.progress,
+            companyForProducts: res.data.company_entity_id,
+          }));
         });
     }
   }, []);
@@ -119,9 +100,11 @@ const StepperFormComplex = () => {
   };
 
   const handleAccept = () => {
-    if (authState.isAccepted) window.location.pathname = 'finale';
+    if (authState.isAccepted) window.location.pathname = "finale";
   };
-  console.log('FILE STATE', fileState);
+  const handleSend = () => {
+    console.log("SENT!");
+  }; 
   return (
     <Grid container className={classes.container} sm={12}>
       {queryMatch ? (
@@ -143,7 +126,7 @@ const StepperFormComplex = () => {
               <Step key={label} completed={completed[i]}>
                 <StepButton
                   className={classes.Label}
-                  color='inherit'
+                  color="inherit"
                   onClick={handleStep(i)}
                 >
                   {label}
@@ -154,7 +137,7 @@ const StepperFormComplex = () => {
         </Grid>
       )}
       <Grid item className={classes.BoxContainer} xs={11}>
-        <Grid container direction='column'>
+        <Grid container direction="column">
           <Grid item>{!queryMatch && <ProgressBar />}</Grid>
           <Grid item className={mixins.formBody}>
             {activeStep === 0 ? (
@@ -169,14 +152,13 @@ const StepperFormComplex = () => {
             <Grid container>
               {activeStep !== 0 && (
                 <Grid item>
-                  <StyledButton
-                    // className={classes.navButton}
-                    color='inherit'
+                  <StyledButton 
+                    color="inherit"
                     className={classes.backStepperButtons}
                     disabled={activeStep === 0}
                     onClick={handleBack}
                     sx={{ mr: 1 }}
-                    variant='outlined'
+                    variant="outlined"
                   >
                     Back
                   </StyledButton>
@@ -185,19 +167,18 @@ const StepperFormComplex = () => {
               <Grid item className={classes.navButtonRight}>
                 {activeStep !== 2 ? (
                   <StyledButton
-                    onClick={handleNext}
+                    onClick={handleSend}
                     sx={{ mr: 1 }}
-                    variant='outlined'
+                    variant="outlined"
                   >
-                    Next
+                    Accept And Send
                   </StyledButton>
                 ) : (
-                  <StyledButton
-                    // className={classes.navButton}
+                  <StyledButton 
                     className={classes.acceptAndSendStepperButtons}
                     onClick={handleAccept}
                     sx={{ mr: 1 }}
-                    variant='outlined'
+                    variant="outlined"
                   >
                     Accept and Send
                   </StyledButton>

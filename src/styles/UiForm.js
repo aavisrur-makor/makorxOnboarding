@@ -63,8 +63,7 @@ export const useStyles = makeStyles((theme) => ({
       backgroundColor: '#D6DFE4',
     },
   },
-  navButton: {
-    // boxSizing: "border-box",
+  navButton: { 
     padding: '.35rem 1.65rem',
     borderRadius: '0',
     backgroundSize: '100% 205%',
@@ -133,9 +132,7 @@ export const useStyles = makeStyles((theme) => ({
   navButtonRight: {
     marginLeft: 'auto',
   },
-  container: {
-    // display: 'flex',
-
+  container: { 
     justifyContent: 'center',
     alignItems: 'center',
     background: '0% 0% no-repeat padding-box',
@@ -143,11 +140,8 @@ export const useStyles = makeStyles((theme) => ({
     opacity: '1',
     background: '0% 0% no-repeat padding-box',
     boxShadow: '0px 5px 15px #4E4E4E29',
-    opacity: '1',
-
-    // height: '1195px',
-    padding: '50px 0px',
-    // width: "calc(100vw - 1500px)",
+    opacity: '1', 
+    padding: '50px 0px', 
     [theme.breakpoints.down('sm')]: {
       width: '100%',
       padding: '2rem 2px',
@@ -168,13 +162,7 @@ export const useStyles = makeStyles((theme) => ({
       textAlign: 'center',
       fontWeight: 'bold',
     },
-  },
-  // proofLabel: {
-  //   color: "#8A8A8A",
-  //   display: "flex",
-  //   alignItems: "center",
-  //
-  // },
+  }, 
   proofLabel: {
     color: '#8A8A8A',
     display: 'flex',
@@ -196,17 +184,7 @@ export const useStyles = makeStyles((theme) => ({
       padding: '25px',
       fontSize: '.95rem',
     },
-  },
-  // uploader: {
-  //   borderTop: "1px solid #D6DFE4",
-  //   "&.MuiGrid-root.MuiGrid-item.MuiGrid-grid-xs-12:last-of-type": {
-  //     borderBottom: "1px solid #D6DFE4",
-  //   },
-  //   "& .MuiFormControlLabel-root": {
-  //     marginLeft: "auto",
-  //   },
-  // },
-
+  }, 
   uploaderAttach: {
     marginLeft: 'auto',
   },
@@ -273,11 +251,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   acceptLabel: {
-    textAlign: 'center',
-    // font: "normal normal normal 16px/24px Work Sans",
-    // letterSpacing: "0px",
-    // color: "#3E2F71",
-    // opacity: "1",
+    textAlign: 'center', 
   },
   termFormContainer: {
     gap: '1.5rem',
@@ -290,8 +264,7 @@ export const useStyles = makeStyles((theme) => ({
     font: 'normal normal bold 24px/29px Cormorant Garamond',
     letterSpacing: '0px',
     color: '#222246',
-    opacity: '1',
-    // padding: "24px 0",
+    opacity: '1', 
   },
   termsOfUseList: {
     color: '#3E2F71',
@@ -318,23 +291,13 @@ export const useStyles = makeStyles((theme) => ({
       webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.0)',
     },
     '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'rgba(0,0,0,.15)',
-      // outline: "1px solid slategrey",
+      backgroundColor: 'rgba(0,0,0,.15)', 
       borderRadius: '17px',
     },
     '&::-webkit-scrollbar-thumb:hover': {
-      backgroundColor: 'rgba(62,47,113, .7)',
-      // boxShadow: '0 0 45px rgba(0,0,0,.5)',
+      backgroundColor: 'rgba(62,47,113, .7)', 
     },
-    // "&::before": {
-    //   position: "absolute",
-    //   content: "''",
-    //   top: "0",
-    //   left: "0",                                                                       white fade for the terms of use container
-    //   width: "100%",
-    //   height: "3rem",
-    //   backgroundImage: "linear-gradient(to bottom, white, transparent)",
-    // },
+   
   },
   termsOfUseSectionTitle: {
     color: '#3E2F71',
@@ -375,7 +338,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   dynamicUploaderContainer: {
-    // gap:
+   
   },
   dynamicFieldProofContainer: {
     display: 'flex',

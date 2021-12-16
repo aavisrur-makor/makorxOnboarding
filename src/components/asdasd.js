@@ -138,7 +138,6 @@ function Step1(props) {
                 }
                 onChange={(e, newValue) => changeValue(newValue, 'country')}
                 onInputChange={(event, newInputValue) => {
-                  // console.log(newInputValue, 'newInputvlue')
                   changeInputValue(newInputValue, 'country')
                 }}
                 // renderOption={(props, option) => (

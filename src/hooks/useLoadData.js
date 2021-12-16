@@ -33,35 +33,7 @@ const useLoadData = () => {
 
   useEffect(() => {
     if (params.uuid) {
-      console.log("uuid useeffect", params.uuid);
       setAuthState((prev) => ({ ...prev, uuid: params.uuid }));
-      console.log("uuid useeffect again", params.uuid, authState);
-
-      // axios
-      //   .all([
-      //     axios.get(`http://10.0.0.197:3030/api/onboarding/${params.uuid}`),
-      //     axios.get(`http://10.0.0.197:3030/api/file/${params.uuid}`),
-      //   ])
-      //   .then((data) => {
-      //     const [res1, res2] = data;
-      //     console.log(res1.data, 'inside Use effect');
-      //     const textFields = res1.data[0];
-      //     const fileFields = {};
-      //     res2.data.forEach((file) => {
-      //       fileFields[file.field_name] = file.file_name;
-      //     });
-      //     console.log('file fields on load', fileFields);
-      //     const fullData = { ...textFields, ...fileFields };
-      //     setFieldState(textFields);
-      //     setFileState(fileFields);
-      //     setAuthState((prev) => ({
-      //       ...authState,
-      //       progress: res1.data[0].progress,
-      //     }));
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   });
     }
   }, [params]);
   return { error };

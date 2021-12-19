@@ -19,6 +19,7 @@ const CustomAutoComplete = (props) => {
     const dataType = await axios.get(
       `${BASE_URL}${END_POINT.UTILS}${props.dataKey}`
     );
+    console.log("THE DATA TYPE", props.dataKey, dataType);
     setData(dataType.data);
     setDataState(fieldState[props.id]);
     setDataStateInput(fieldState[props.id]);
@@ -30,7 +31,7 @@ const CustomAutoComplete = (props) => {
     if (props.dataKey === "Company") {
       setAuthState((prev) => ({
         ...prev,
-        companyForProducts: e && e.name,
+        companyForProducts: e && e.uuid,
       }));
     }
 

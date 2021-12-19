@@ -6,5 +6,5 @@ export const END_POINT = {
   SUBSCRIPTION: "/subscription",
   COMPANY: "/company",
   UTILS: "/utils/",
-  assets: "/assets/",
+  assets: "assets/",
 };

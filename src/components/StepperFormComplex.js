@@ -25,7 +25,7 @@ import { useTheme } from "@material-ui/core";
 import MobileStepper from "./MobileStepper";
 import { BASE_URL, END_POINT } from "../constant";
 
-const steps = ["Submit Documentation"]; 
+const steps = ["Submit Documentation"];
 
 const StepperFormComplex = () => {
   const classes = useStyles();
@@ -38,14 +38,12 @@ const StepperFormComplex = () => {
   const theme = useTheme();
   const queryMatch = useMediaQuery("(max-width:800px)");
 
- 
-
-  useEffect(() => { 
+  useEffect(() => {
     setAuthState((prev) => ({ ...prev, uuid: params.uuid }));
     if (params.uuid) {
       const fieldCall = axios
         .get(`${BASE_URL}${END_POINT.onboarding}${params.uuid}`)
-        .then((res) => { 
+        .then((res) => {
           const textFields = res.data;
           const textFieldAfterParse = {
             ...textFields,
@@ -56,7 +54,7 @@ const StepperFormComplex = () => {
           setAuthState((prev) => ({
             ...prev,
             progress: res.data.progress,
-            companyForProducts: res.data.company_entity_id,
+            companyForProducts: res.data.company_id,
           }));
         });
     }
@@ -104,7 +102,7 @@ const StepperFormComplex = () => {
   };
   const handleSend = () => {
     console.log("SENT!");
-  }; 
+  };
   return (
     <Grid container className={classes.container} sm={12}>
       {queryMatch ? (
@@ -152,7 +150,7 @@ const StepperFormComplex = () => {
             <Grid container>
               {activeStep !== 0 && (
                 <Grid item>
-                  <StyledButton 
+                  <StyledButton
                     color="inherit"
                     className={classes.backStepperButtons}
                     disabled={activeStep === 0}
@@ -174,7 +172,7 @@ const StepperFormComplex = () => {
                     Accept And Send
                   </StyledButton>
                 ) : (
-                  <StyledButton 
+                  <StyledButton
                     className={classes.acceptAndSendStepperButtons}
                     onClick={handleAccept}
                     sx={{ mr: 1 }}

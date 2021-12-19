@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useContext, useState } from "react";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Grid, makeStyles, Typography, Box } from "@material-ui/core";
 import DispatcherField from "./DispatcherField";
 import formData from "../data/formData";
 import {
@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiOutlinedInput-root": {
       borderRadius: 0,
+    },
+    "& .MuiOutlinedInput-multiline": {
+      padding: "16.5px 14px",
     },
   },
   formControl: {
@@ -58,6 +61,14 @@ const useStyles = makeStyles((theme) => ({
     "& .MuiButtonBase-root.MuiIconButton-root.MuiAutocomplete-clearIndicator.MuiAutocomplete-clearIndicatorDirty":
       { display: "none" },
   },
+  checkBox: {
+    "& .MuiCheckbox-colorSecondary.Mui-checked": {
+      color: "#3E2F71",
+    },
+    "& .MuiIconButton-colorSecondary": {
+      color: "#3E2F71",
+    },
+  },
 }));
 
 const PseudoForm = function (props) {
@@ -68,38 +79,40 @@ const PseudoForm = function (props) {
   const classes = useStyles();
 
   useEffect(() => {
+    console.log("COMPANY FOR PRODUCTS", authState.companyForProducts);
     axios
       .get(
         `${BASE_URL}${END_POINT.UTILS}${END_POINT.assets}${authState.companyForProducts}`
       )
       .then((res) => {
-        console.log("product DETAILS", res);
+        console.log("🚀 ~ file: PseudoForm.js ~ line 77 ~ .then ~ res", res);
         setProducts(res.data);
       });
   }, [authState.companyForProducts]);
+
   useLayoutEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
 
   const handleChange = (e, type, product, i) => {
     setFieldState((prev) => {
-      const index = prev.onboarding_has_company_entity_asset.findIndex(
-        (str) => str === product.name
+      const index = prev.onboarding_has_company_asset.findIndex(
+        (str) => str === product.uuid
       );
 
       if (index === -1) {
         return {
           ...prev,
-          onboarding_has_company_entity_asset: [
-            ...prev.onboarding_has_company_entity_asset,
-            product.name,
+          onboarding_has_company_asset: [
+            ...prev.onboarding_has_company_asset,
+            product.uuid,
           ],
         };
       } else
         return {
           ...prev,
-          onboarding_has_company_entity_asset:
-            prev.onboarding_has_company_entity_asset.filter(
+          onboarding_has_company_asset:
+            prev.onboarding_has_company_asset.filter(
               (curr_item, curr_index) => {
                 return curr_item[curr_index] !== curr_item[index];
               }
@@ -109,10 +122,11 @@ const PseudoForm = function (props) {
 
     e.preventDefault();
     if (type === "checkboxArray") {
+      console.log("HANDLE CHANGE ARRAY BOX ", e, type, product);
       const field = {
         fieldToUpdate: {
           field: e.target.id,
-          value: product.name,
+          value: product.uuid,
           isAdd: e.target.checked,
         },
       };
@@ -153,24 +167,47 @@ const PseudoForm = function (props) {
       component = <CustomAutoComplete label={label} dataKey={label} id={id} />;
     } else if (type === "checkboxArray") {
       component = products.map((product, i) => {
+        console.log(
+          "🚀 ~ file: PseudoForm.js ~ line 180 ~ component=products.map ~ products",
+          product
+        );
         return (
-          <FormControlLabel
-            style={{ display: "flex" }}
-            control={
-              <Checkbox
-                key={id}
-                id={id}
-                value={product.name}
-                checked={fieldState.onboarding_has_company_entity_asset.includes(
-                  product.name
-                )}
-                onChange={(e) => handleChange(e, type, product, i)}
-              />
-            }
-            label={product.name}
-            labelPlacement="right"
-            id={id}
-          />
+          <Box
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <FormControlLabel
+              className={classes.checkBox}
+              style={{ display: "flex", alignItems: "center" }}
+              control={
+                <Checkbox
+                  key={id}
+                  id={id}
+                  value={product.uuid}
+                  checked={fieldState.onboarding_has_company_asset.includes(
+                    product.uuid
+                  )}
+                  onChange={(e) => handleChange(e, type, product, i)}
+                />
+              }
+              label={product.asset_name}
+              labelPlacement="right"
+              id={id}
+            />
+            <Typography
+              style={{
+                transform: "translateY(3px)",
+                fontSize: "0.95em",
+                textAlign: "center",
+                color: "#8A8A8A",
+                fontStyle: "italic",
+              }}
+            >
+              ({product.modes.map((mode) => mode).join("/")})
+            </Typography>
+          </Box>
         );
       });
     }

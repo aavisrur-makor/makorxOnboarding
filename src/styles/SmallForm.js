@@ -91,7 +91,6 @@ export const useStyles = makeStyles((theme) => ({
     opacity: "1",
   },
   dialAutoCompleteContainer: {
-    gap: "1.25rem",
     justifyContent: "space-between",
   },
   dialAutoComplete: {

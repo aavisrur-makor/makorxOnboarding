@@ -1,7 +1,7 @@
 export default {
   form1: {
     grid1: [
-      { id: "company_entity_id", label: "Company", type: "auto-complete" },
+      { id: "company_id", label: "Company", type: "auto-complete" },
       { id: "legal_entity_name", label: "Legal Entity Name", type: "text" },
       {
         id: "legal_entity_identifier",
@@ -27,7 +27,7 @@ export default {
       { id: "regulation_number", label: "Regulation Number", type: "text" },
       { id: "activity_description", label: "Comment", type: "textarea" },
       {
-        id: "onboarding_has_company_entity_asset",
+        id: "onboarding_has_company_asset",
         label: "Products",
         type: "checkboxArray",
       },

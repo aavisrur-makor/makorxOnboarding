@@ -1,11 +1,11 @@
-import { useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { makeStyles, TextField } from "@material-ui/core";
 import FieldContext from "../context/fields";
 import AuthContext from "../context/auth";
 import { BASE_URL, END_POINT } from "../constant";
 import { useDebouncedCallback } from "use-debounce";
-
+import validate from "../utils/validate";
 const useStyles = makeStyles((theme) => ({
   root: {
     border: "0px",
@@ -35,9 +35,19 @@ const useStyles = makeStyles((theme) => ({
 const DispatcherField = (props) => {
   const { fieldState, setFieldState } = useContext(FieldContext);
   const { authState, setAuthState } = useContext(AuthContext);
+  const [error, setError] = useState("");
   const classes = useStyles();
 
   const handleChange = async (e) => {
+    if (props.isRequired) {
+      console.log(
+        "🚀 ~ file: DispatcherField.js ~ line 65 ~ handleChange ~ props.isRequired",
+        props.isRequired
+      );
+
+      validate(e.target.id, fieldState[e.target.id], setError);
+    }
+
     let field = {};
     if (e.target.id === "registration_gapi_location") {
       field = {
@@ -66,8 +76,15 @@ const DispatcherField = (props) => {
         },
       };
     }
+
+    console.log(
+      "🚀 ~ file: DispatcherField.js ~ line 82 ~ handleChange ~ ${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}",
+      BASE_URL,
+      END_POINT.ONBOARDING,
+      authState.uuid
+    );
     axios
-      .put(`${BASE_URL}${END_POINT.onboarding}${authState.uuid}`, field)
+      .put(`${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}`, field)
       .then((res) => {
         if (res.status === 200) {
           setAuthState((prev) => ({
@@ -85,6 +102,7 @@ const DispatcherField = (props) => {
 
   return (
     <TextField
+      InputProps={props.InputProps}
       className={classes.textField}
       id={props.id}
       fullWidth
@@ -104,6 +122,8 @@ const DispatcherField = (props) => {
       maxRows={props.maxRows}
       rows={props.rows}
       multiline
+      error={!!error}
+      helperText={error && error}
     />
   );
 };

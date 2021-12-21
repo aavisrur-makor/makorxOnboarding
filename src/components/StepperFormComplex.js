@@ -14,7 +14,7 @@ import FieldContext from "../context/fields";
 import FileContext from "../context/files";
 import AuthContext from "../context/auth";
 
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import StyledButton from "./StyledButton";
 import { useStyles as useMixins } from "../styles/mixins";
 import { useStyles } from "../styles/UiForm";
@@ -35,14 +35,26 @@ const StepperFormComplex = () => {
   const { fileState, setFileState } = useContext(FileContext);
   const { authState, setAuthState } = useContext(AuthContext);
   const params = useParams();
-  const theme = useTheme();
   const queryMatch = useMediaQuery("(max-width:800px)");
+  let navigate = useNavigate();
 
+  useEffect(() => {
+    const uuidRegExp =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+    if (!uuidRegExp.test(params.uuid)) {
+      navigate("/404");
+    }
+  }, []);
   useEffect(() => {
     setAuthState((prev) => ({ ...prev, uuid: params.uuid }));
     if (params.uuid) {
+      console.log(
+        "🚀 ~ file: StepperFormComplex.js ~ line 67 ~ useEffect ~ ${BASE_URL}${END_POINT.onboarding}${params.uuid}",
+        `${BASE_URL}${END_POINT.ONBOARDING}${params.uuid}`
+      );
+
       const fieldCall = axios
-        .get(`${BASE_URL}${END_POINT.onboarding}${params.uuid}`)
+        .get(`${BASE_URL}${END_POINT.ONBOARDING}${params.uuid}`)
         .then((res) => {
           const textFields = res.data;
           const textFieldAfterParse = {
@@ -54,7 +66,7 @@ const StepperFormComplex = () => {
           setAuthState((prev) => ({
             ...prev,
             progress: res.data.progress,
-            companyForProducts: res.data.company_id,
+            companyForProducts: res.data.company_uuid,
           }));
         });
     }
@@ -98,13 +110,24 @@ const StepperFormComplex = () => {
   };
 
   const handleAccept = () => {
-    if (authState.isAccepted) window.location.pathname = "finale";
+    if (authState.isAccepted) navigate("finale");
   };
   const handleSend = () => {
-    console.log("SENT!");
+    const field = {
+      fieldToUpdate: {
+        field: "is_agreed",
+        value: true,
+      },
+    };
+    axios
+      .put(`${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}`, field)
+      .then((res) => {
+        console.log("ACCEPT AND SEND RES ", res);
+      })
+      .catch((err) => console.log(err));
   };
   return (
-    <Grid container className={classes.container} sm={12}>
+    <Grid container className={classes.container}>
       {queryMatch ? (
         <Grid item xs={10}>
           <MobileStepper
@@ -114,7 +137,7 @@ const StepperFormComplex = () => {
           />
         </Grid>
       ) : (
-        <Grid xs={12}>
+        <Grid item xs={12}>
           <Stepper
             className={classes.stepper}
             nonLinear
@@ -163,24 +186,16 @@ const StepperFormComplex = () => {
                 </Grid>
               )}
               <Grid item className={classes.navButtonRight}>
-                {activeStep !== 2 ? (
-                  <StyledButton
-                    onClick={handleSend}
-                    sx={{ mr: 1 }}
-                    variant="outlined"
-                  >
-                    Accept And Send
-                  </StyledButton>
-                ) : (
-                  <StyledButton
-                    className={classes.acceptAndSendStepperButtons}
-                    onClick={handleAccept}
-                    sx={{ mr: 1 }}
-                    variant="outlined"
-                  >
-                    Accept and Send
-                  </StyledButton>
-                )}
+                <StyledButton
+                  className={
+                    activeStep === 2 && classes.acceptAndSendStepperButtons
+                  }
+                  onClick={activeStep !== 2 ? handleSend : handleAccept}
+                  sx={{ mr: 1 }}
+                  variant="outlined"
+                >
+                  Accept And Send
+                </StyledButton>
               </Grid>
             </Grid>
           </Grid>

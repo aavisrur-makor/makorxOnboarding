@@ -6,9 +6,8 @@ import {
   Input,
   useMediaQuery,
 } from "@material-ui/core";
-import { useEffect, useState, memo } from "react";
-import { useStyles } from "../styles/UiForm";
-import UploaderField from "./UploaderField";
+import {   memo } from "react";
+import { useStyles } from "../styles/UiForm"; 
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import CheckIcon from "@material-ui/icons/Check";
 import axios from "axios";

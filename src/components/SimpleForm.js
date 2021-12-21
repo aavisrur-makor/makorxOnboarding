@@ -17,6 +17,7 @@ import AuthContext from "../context/auth";
 import { useStyles } from "../styles/SmallForm";
 // import DialPhoneAutoComplete from "./DialPhoneAutoComplete";
 import { END_POINT, BASE_URL } from "../constant";
+import isEmail from "validator/lib/isEmail";
 
 const SimpleForm = () => {
   const [name, setName] = useState();
@@ -24,6 +25,7 @@ const SimpleForm = () => {
   const [phone, setPhone] = useState();
   const [dialCode, setDialCode] = useState();
   const [company, setCompany] = useState();
+  const [isMailValid, setIsMailValid] = useState(true);
   const { authState, setAuthState } = useContext(AuthContext);
   const classes = useStyles();
   const [isSubmitted, setSubmitted] = useState(false);
@@ -45,7 +47,7 @@ const SimpleForm = () => {
 
     setSubmitted(true);
     axios
-      .post(`${BASE_URL}${END_POINT.onboarding}`, data)
+      .post(`${BASE_URL}${END_POINT.ONBOARDING}`, data)
       .then((res) => {
         if (res.status === 200) {
           const isNewUser = res.data.isNewUser;
@@ -65,7 +67,10 @@ const SimpleForm = () => {
         setName(value);
         break;
       case "client_email":
-        setEmail(value);
+        setIsMailValid(isEmail(value));
+        if (isMailValid) {
+          setEmail(value);
+        }
         break;
       case "client_phone":
         setPhone(value);
@@ -129,6 +134,7 @@ const SimpleForm = () => {
                     label="Email"
                     className={classes.inputFields}
                   />
+                  {/* {!isMailValid && <Typography>mail is not valid</Typography>} */}
                 </Grid>
 
                 <Grid item xs={12} md={6}>
@@ -140,6 +146,7 @@ const SimpleForm = () => {
                     <Grid item className={classes.dialAutoCompleteNumber}>
                       <TextField
                         variant="outlined"
+                        type="number"
                         required
                         fullWidth
                         onChange={handleChange}

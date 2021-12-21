@@ -5,12 +5,13 @@ import { withStyles } from "@material-ui/core";
 import axios from "axios";
 import AuthContext from "../context/auth";
 import FieldContext from "../context/fields";
-import { Email } from "@material-ui/icons";
 import { BASE_URL, END_POINT } from "../constant";
+import validate from "../utils/validate";
 
 const CustomAutoComplete = (props) => {
   const [data, setData] = useState([]);
-  const { fieldState } = useContext(FieldContext);
+  const { fieldState, setFieldState } = useContext(FieldContext);
+  const [error, setError] = useState("");
   const [dataState, setDataState] = useState({});
   const [dataStateInput, setDataStateInput] = useState("");
   const { authState, setAuthState } = useContext(AuthContext);
@@ -19,7 +20,7 @@ const CustomAutoComplete = (props) => {
     const dataType = await axios.get(
       `${BASE_URL}${END_POINT.UTILS}${props.dataKey}`
     );
-    console.log("THE DATA TYPE", props.dataKey, dataType);
+
     setData(dataType.data);
     setDataState(fieldState[props.id]);
     setDataStateInput(fieldState[props.id]);
@@ -29,9 +30,18 @@ const CustomAutoComplete = (props) => {
     let field = {};
     setDataState(e);
     if (props.dataKey === "Company") {
+      setFieldState((prev) => ({
+        ...prev,
+        onboarding_has_company_asset: [],
+      }));
       setAuthState((prev) => ({
         ...prev,
         companyForProducts: e && e.uuid,
+      }));
+    } else if (props.dataKey === "Country") {
+      setAuthState((prev) => ({
+        ...prev,
+        currentCountry: e && e.name,
       }));
     }
 
@@ -42,7 +52,7 @@ const CustomAutoComplete = (props) => {
           value: e && e.name,
         },
       };
-    } else if (e === null) {
+    } else if (!e) {
       field = {
         fieldToUpdate: {
           field: props.id,
@@ -52,22 +62,24 @@ const CustomAutoComplete = (props) => {
     }
 
     axios
-      .put(`${BASE_URL}${END_POINT.onboarding}${authState.uuid}`, field)
+      .put(`${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}`, field)
       .then((res) => {})
       .catch((error) => {
         console.log(error);
       });
   };
 
+  const handleInputChange = (e, inputValue) => {
+    setDataStateInput(inputValue);
+    validate(null, inputValue, setError);
+  };
+
   return (
     <StyledAutoComplete
       id={props.label}
-      autoComplete="off"
+      disableClearable
       fullWidth
-      value={dataState}
-      onClose={(e) => {
-        console.log(e);
-      }}
+      value={dataState || ""}
       className={props.className}
       label={props.label}
       options={data}
@@ -75,14 +87,15 @@ const CustomAutoComplete = (props) => {
       getOptionLabel={(option) => option.name || ""}
       loadingText={props.label}
       onChange={(e, value) => handleChange(value, e)}
-      onInputChange={(e, inputValue) => setDataStateInput(inputValue)}
+      onInputChange={(e, inputValue) => handleInputChange(e, inputValue)}
       inputValue={dataStateInput || ""}
       renderInput={(params) => (
         <StyledTextFieldCountry
           {...params}
-          disableOutline
           variant="outlined"
           label={props.label}
+          error={!!error}
+          helperText={error && "Field is empty."}
           inputProps={{
             ...params.inputProps,
             autoComplete: "new-password", // disable autocomplete and autofill

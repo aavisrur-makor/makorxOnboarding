@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import { Box, makeStyles } from "@material-ui/core";
+import { useContext } from "react";
+import AuthContext from "../context/auth";
 
 const useStyles = makeStyles((theme) => ({
   mobileStepperBox: {
@@ -36,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 const MobileStepper = (props) => {
   const classes = useStyles();
+  const { authState } = useContext(AuthContext);
 
   return (
     <Box className={classes.mobileStepperBox}>
@@ -53,7 +56,7 @@ const MobileStepper = (props) => {
         <CircularProgress
           className={classes.circularMain}
           variant="determinate"
-          value={(props.activeStep + 1) * 33.3}
+          value={authState.progress}
           size="70px"
         />
         <Box
@@ -67,7 +70,7 @@ const MobileStepper = (props) => {
           justifyContent="center"
         >
           <Typography className={classes.mobileStepperLabel}>
-            {props.activeStep + 1} of 3
+            Progress
           </Typography>
         </Box>
       </Box>
@@ -80,14 +83,6 @@ const MobileStepper = (props) => {
       >
         <Typography className={classes.mobilePageLabel}>
           {props.stepLabel}
-        </Typography>
-        <Typography
-          className={classes.nextPageLabel}
-          style={{ color: "#B9C6CD" }}
-        >
-          {props.activeStep !== 2
-            ? `Next: ${props.nextStepLabel}`
-            : "Read and accept the Terms of Use"}
         </Typography>
       </Box>
     </Box>

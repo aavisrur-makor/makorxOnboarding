@@ -1,9 +1,9 @@
-import { createTheme, ThemeProvider } from '@material-ui/core';
-import React, { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import ChiefProvider from './components/ChiefProvider';
-import './index.css';
+import { createTheme, ThemeProvider } from "@material-ui/core";
+import React, { StrictMode } from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import ChiefProvider from "./components/ChiefProvider";
+import "./index.css";
 
 const theme = createTheme({
   typography: {
@@ -11,15 +11,16 @@ const theme = createTheme({
     htmlFontSize: 13,
     fontFamily: '"Work Sans", "Roboto"',
   },
+  palette: { error: { main: "#d14579" } },
 });
 
 ReactDOM.render(
-  <StrictMode>
-    <ThemeProvider theme={theme}>
-      <ChiefProvider>
+  <ThemeProvider theme={theme}>
+    <ChiefProvider>
+      <StrictMode>
         <App />
-      </ChiefProvider>
-    </ThemeProvider>
-  </StrictMode>,
-  document.getElementById('root')
+      </StrictMode>
+    </ChiefProvider>
+  </ThemeProvider>,
+  document.getElementById("root")
 );

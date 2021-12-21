@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useContext, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useContext,
+  useState,
+  useMemo,
+} from "react";
 import { Grid, makeStyles, Typography, Box } from "@material-ui/core";
 import DispatcherField from "./DispatcherField";
 import formData from "../data/formData";
@@ -13,6 +19,9 @@ import AuthContext from "../context/auth";
 import CustomAutoComplete from "./CutomAutoComplete";
 import axios from "axios";
 import { BASE_URL, END_POINT } from "../constant";
+import InfoPopoverButton from "./InfoPopoverButton";
+import Divider from "@material-ui/core/Divider";
+
 // const steps = [
 //   "Submit on-boarding documentation",
 //   "Attach documents",
@@ -75,29 +84,58 @@ const PseudoForm = function (props) {
   const { fieldState, setFieldState } = useContext(FieldContext);
   const { authState } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
+
   const { steps } = props;
   const classes = useStyles();
 
   useEffect(() => {
-    console.log("COMPANY FOR PRODUCTS", authState.companyForProducts);
     axios
       .get(
-        `${BASE_URL}${END_POINT.UTILS}${END_POINT.assets}${authState.companyForProducts}`
+        `${BASE_URL}${END_POINT.UTILS}${END_POINT.ASSETS}${authState.companyForProducts}`
       )
       .then((res) => {
-        console.log("🚀 ~ file: PseudoForm.js ~ line 77 ~ .then ~ res", res);
-        setProducts(res.data);
+        const newProducts = {};
+        res.data.forEach((product) => {
+          if (!newProducts[product.asset_name]) {
+            newProducts[product.asset_name] = {
+              uuids: [product.uuid],
+              mode_names: [product.mode_name],
+            };
+          } else {
+            newProducts[product.asset_name].uuids.push(product.uuid);
+            newProducts[product.asset_name].mode_names.push(product.mode_name);
+          }
+        });
+
+        const productArray = [];
+        for (const asset_name of Object.keys(newProducts)) {
+          productArray.push({ asset_name, ...newProducts[asset_name] });
+        }
+
+        setProducts(productArray);
       });
-  }, [authState.companyForProducts]);
+  }, [authState.companyForProducts, authState.currentCountry]);
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const handleChange = (e, type, product, i) => {
+  const handleChange = (e, product) => {
+    console.log(
+      "🚀 ~ file: PseudoForm.js ~ line 122 ~ handleChange ~ e, type, product, i",
+      e.target.value,
+
+      product
+    );
+
     setFieldState((prev) => {
+      console.log(
+        "🚀 ~ file: PseudoForm.js ~ line 131 ~ setFieldState ~ prev",
+        prev.onboarding_has_company_asset,
+        e.target.value
+      );
       const index = prev.onboarding_has_company_asset.findIndex(
-        (str) => str === product.uuid
+        (clientProduct) => clientProduct === product.uuids[0]
       );
 
       if (index === -1) {
@@ -105,143 +143,230 @@ const PseudoForm = function (props) {
           ...prev,
           onboarding_has_company_asset: [
             ...prev.onboarding_has_company_asset,
-            product.uuid,
+            ...product.uuids,
           ],
         };
       } else
         return {
           ...prev,
           onboarding_has_company_asset:
-            prev.onboarding_has_company_asset.filter(
-              (curr_item, curr_index) => {
-                return curr_item[curr_index] !== curr_item[index];
-              }
-            ),
+            prev.onboarding_has_company_asset.filter((checkedProduct) => {
+              return (
+                checkedProduct !== product.uuids[0] &&
+                checkedProduct !== product.uuids[1]
+              );
+            }),
         };
     });
 
     e.preventDefault();
-    if (type === "checkboxArray") {
-      console.log("HANDLE CHANGE ARRAY BOX ", e, type, product);
-      const field = {
-        fieldToUpdate: {
-          field: e.target.id,
-          value: product.uuid,
-          isAdd: e.target.checked,
-        },
-      };
-      axios
-        .put(`${BASE_URL}${END_POINT.onboarding}${authState.uuid}`, field)
-        .then((res) => {})
-        .catch((err) => console.log(err));
-    } else if (type === "") {
-    } else
-      setFieldState((prev) => ({
-        ...prev,
-        [e.target[e.target.name ? "name" : "id"]]: e.target.value,
-      }));
+
+    const field = {
+      fieldToUpdate: {
+        field: e.target.id,
+        value: product.uuids,
+        asset_name: product.asset_name,
+        is_add: e.target.checked,
+      },
+    };
+    axios
+      .put(`${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}`, field)
+      .then((res) => {})
+      .catch((err) => console.log(err));
   };
 
-  const renderAppropriately = ({ label, id, type }) => {
-    let component;
-    if (type === "text") {
-      component = (
-        <DispatcherField
-          value={fieldState[id]}
-          id={id}
-          label={label}
-          rows={1}
-        />
-      );
-    } else if (type === "textarea") {
-      component = (
-        <DispatcherField
-          value={fieldState[id]}
-          id={id}
-          label={label}
-          multiline
-          rows={9}
-        />
-      );
-    } else if (type === "auto-complete") {
-      component = <CustomAutoComplete label={label} dataKey={label} id={id} />;
-    } else if (type === "checkboxArray") {
-      component = products.map((product, i) => {
-        console.log(
-          "🚀 ~ file: PseudoForm.js ~ line 180 ~ component=products.map ~ products",
-          product
-        );
-        return (
-          <Box
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <FormControlLabel
-              className={classes.checkBox}
-              style={{ display: "flex", alignItems: "center" }}
-              control={
-                <Checkbox
-                  key={id}
-                  id={id}
-                  value={product.uuid}
-                  checked={fieldState.onboarding_has_company_asset.includes(
-                    product.uuid
-                  )}
-                  onChange={(e) => handleChange(e, type, product, i)}
-                />
-              }
-              label={product.asset_name}
-              labelPlacement="right"
-              id={id}
-            />
-            <Typography
-              style={{
-                transform: "translateY(3px)",
-                fontSize: "0.95em",
-                textAlign: "center",
-                color: "#8A8A8A",
-                fontStyle: "italic",
-              }}
-            >
-              ({product.modes.map((mode) => mode).join("/")})
-            </Typography>
-          </Box>
-        );
-      });
-    }
-    return (
-      <Grid item xs={12} md={6}>
-        {component}
-      </Grid>
-    );
-  };
+  const showStates = useMemo(
+    () =>
+      authState.currentCountry === "United States" ||
+      fieldState.country_id === "United States",
+    [fieldState]
+  );
 
   return (
     <Grid container direction="column" className={classes.root} spacing={3}>
       <Grid item xs={11}>
         {!props.query && (
           <Typography className={classes.titleText} variant="body1">
-            On-Boarding Documentation
+            Info
           </Typography>
         )}
       </Grid>
-
       <Grid item>
         <Grid container spacing={3}>
-          {formData.form1.grid1.map(renderAppropriately)}
-        </Grid>
-      </Grid>
-      <Grid item spacing={3}>
-        <Grid container spacing={3}>
-          {formData.form1.grid2.map(renderAppropriately)}
-        </Grid>
-      </Grid>
+          <Grid md={6} xs={12} item>
+            <CustomAutoComplete
+              isRequired={formData.form1.grid1[0].isRequired}
+              label={formData.form1.grid1[0].label}
+              dataKey={formData.form1.grid1[0].label}
+              id={formData.form1.grid1[0].id}
+            />
+          </Grid>
+          <Grid item md={12} xs={12}>
+            <Grid container spacing={3}>
+              <Grid md={6} xs={12} justifyContent="space-between" item>
+                <DispatcherField
+                  isRequired={formData.form1.grid1[1].isRequired}
+                  value={fieldState[formData.form1.grid1[1].id]}
+                  id={formData.form1.grid1[1].id}
+                  label={formData.form1.grid1[1].label}
+                />
+              </Grid>
+              <Grid md={6} xs={12} item>
+                <DispatcherField
+                  isRequired={formData.form1.grid1[2].isRequired}
+                  InputProps={{
+                    endAdornment: (
+                      <InfoPopoverButton info="Legal Entity Identifier" />
+                    ),
+                  }}
+                  value={fieldState[formData.form1.grid1[2].id]}
+                  id={formData.form1.grid1[2].id}
+                  label={formData.form1.grid1[2].label}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <DispatcherField
+                  isRequired={formData.form1.grid2[0].isRequired}
+                  value={fieldState[formData.form1.grid2[0].id]}
+                  id={formData.form1.grid2[0].id}
+                  label={formData.form1.grid2[0].label}
+                />
+              </Grid>
+              <Grid item xs={12} md={showStates ? 3 : 6}>
+                <CustomAutoComplete
+                  label={formData.form1.grid2[1].label}
+                  dataKey={formData.form1.grid2[1].label}
+                  id={formData.form1.grid2[1].id}
+                />
+              </Grid>
+              {showStates && (
+                <Grid item xs={12} md={showStates ? 6 : 3}>
+                  <CustomAutoComplete
+                    label={formData.form1.grid2[2].label}
+                    dataKey={formData.form1.grid2[2].label}
+                    id={formData.form1.grid2[2].id}
+                  />
+                </Grid>
+              )}
+            </Grid>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <CustomAutoComplete
+                  label={formData.form1.grid3[0].label}
+                  dataKey={formData.form1.grid3[0].label}
+                  id={formData.form1.grid3[0].id}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <DispatcherField
+                  isRequired={formData.form1.grid3[1].isRequired}
+                  value={fieldState[formData.form1.grid3[1].id]}
+                  id={formData.form1.grid3[1].id}
+                  label={formData.form1.grid3[1].label}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <DispatcherField
+              isRequired={formData.form1.grid3[2].isRequired}
+              value={fieldState[formData.form1.grid3[2].id]}
+              id={formData.form1.grid3[2].id}
+              label={formData.form1.grid3[2].label}
+              multiline
+              rows={9}
+            />
+            <Divider style={{ marginTop: "20px" }} />
+          </Grid>
 
-      <Grid item xs={12}>
-        <Grid container spacing={3}>
-          {formData.form1.grid3.map(renderAppropriately)}
+          <Grid item md={12}>
+            <Grid container>
+              <Grid xs={12} item md={12}>
+                <Typography>Assets</Typography>
+              </Grid>
+              <Grid item xs={12} md={12}>
+                {products.map((product, i) => {
+                  return (
+                    <Box
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <FormControlLabel
+                        className={classes.checkBox}
+                        style={{ display: "flex", alignItems: "center" }}
+                        control={
+                          <Checkbox
+                            key={formData.form1.grid3[3].id}
+                            id={formData.form1.grid3[3].id}
+                            value={product.asset_name}
+                            checked={product.uuids.every((val) =>
+                              fieldState.onboarding_has_company_asset.includes(
+                                val
+                              )
+                            )}
+                            onChange={(e) => handleChange(e, product)}
+                          />
+                        }
+                        label={
+                          <Typography style={{ textTransform: "capitalize" }}>
+                            {product.asset_name}
+                          </Typography>
+                        }
+                        id={formData.form1.grid3[3].id}
+                      />
+                      <Typography>
+                        ({product.mode_names.map((mode) => mode).join("/")})
+                      </Typography>
+                    </Box>
+                  );
+                })}
+                <Divider style={{ marginTop: "20px" }} />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={12}>
+                <Typography>Contact Info</Typography>
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={4}>
+                    <CustomAutoComplete
+                      label={formData.form1.grid3[4].label}
+                      dataKey={formData.form1.grid3[4].label}
+                      id={formData.form1.grid3[4].id}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <DispatcherField
+                      isRequired={formData.form1.grid3[5].isRequired}
+                      value={fieldState[formData.form1.grid3[5].id]}
+                      id={formData.form1.grid3[5].id}
+                      label={formData.form1.grid3[5].label}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <DispatcherField
+                      isRequired={formData.form1.grid3[6].isRequired}
+                      value={fieldState[formData.form1.grid3[6].id]}
+                      id={formData.form1.grid3[6].id}
+                      label={formData.form1.grid3[6].label}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Grid>

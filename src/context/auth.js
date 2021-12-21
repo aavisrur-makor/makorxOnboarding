@@ -6,4 +6,5 @@ export const initialState = {
   progress: 0,
   isAgree: false,
   companyForProducts: "",
+  currentCountry: "",
 };

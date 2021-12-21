@@ -75,10 +75,7 @@ const UploaderField = (props) => {
         fileType.includes("pdf")
       ) {
         await axios
-          .post(
-            `http://10.0.0.191:3030/api/document/${authState.uuid}`,
-            formData
-          )
+          .post(`http://10.0.0.191:3030/document/${authState.uuid}`, formData)
           .then((res) => {
             console.log(res);
             if (res.status === 200) {

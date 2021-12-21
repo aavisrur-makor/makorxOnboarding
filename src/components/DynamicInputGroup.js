@@ -1,19 +1,10 @@
-import {
-  IconButton,
-  Grid,
-  makeStyles,
-  Input,
-  useMediaQuery,
-} from "@material-ui/core";
+import { IconButton, Grid, makeStyles, useMediaQuery } from "@material-ui/core";
 import _ from "lodash";
 import { useEffect, useContext } from "react";
 import FileContext from "../context/files";
 import { ReactComponent as AddIcon } from "./../assets/icons/Group46.svg";
-import { ReactComponent as TrashIcon } from "./../assets/icons/trashIcon.svg";
 
-import axios from "axios";
 import DynamicUploaderField from "./DynamicUploaderField";
-import { useTheme } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -39,6 +39,7 @@ const DispatcherField = (props) => {
   const classes = useStyles();
 
   const handleChange = async (e) => {
+    console.log("THIS IS THE HANDLE CHANGE VALUE", e.target.value);
     if (props.isRequired) {
       console.log(
         "🚀 ~ file: DispatcherField.js ~ line 65 ~ handleChange ~ props.isRequired",
@@ -49,31 +50,22 @@ const DispatcherField = (props) => {
     }
 
     let field = {};
-    if (e.target.id === "registration_gapi_location") {
+    if (e.target.id === "address") {
       field = {
-        fieldToUpdate: {
-          field: e.target.id,
-          value: [
-            {
-              name: "11 Derech Menachem Begin",
-              location: { lat: 100.123456, lon: -90.987654 },
-            },
-          ],
-        },
+        [e.target.id]: [
+          {
+            name: "11 Derech Menachem Begin",
+            location: { lat: 100.123456, lon: -90.987654 },
+          },
+        ],
       };
-    } else if (e.target.id === "email") {
+    } else if (e.target.id === "contact_email") {
       field = {
-        fieldToUpdate: {
-          field: e.target.id,
-          value: [fieldState[e.target.id]],
-        },
+        [e.target.id]: [e.target.value],
       };
     } else {
       field = {
-        fieldToUpdate: {
-          field: e.target.id,
-          value: fieldState[e.target.id],
-        },
+        [e.target.id]: e.target.value,
       };
     }
 

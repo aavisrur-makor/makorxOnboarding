@@ -34,15 +34,15 @@ const SimpleForm = () => {
     e.preventDefault();
 
     const data = {
-      name: name,
-      email: [email],
-      phone: [
+      contact_name: name,
+      contact_email: [email],
+      contact_phone: [
         {
           dialing_code: "972",
           number: phone,
         },
       ],
-      company: company,
+      company_name: company,
     };
 
     setSubmitted(true);

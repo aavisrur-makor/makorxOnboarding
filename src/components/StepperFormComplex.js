@@ -56,17 +56,19 @@ const StepperFormComplex = () => {
       const fieldCall = axios
         .get(`${BASE_URL}${END_POINT.ONBOARDING}${params.uuid}`)
         .then((res) => {
+          console.log("THE DETAILS FROM THE SERVER", res);
           const textFields = res.data;
           const textFieldAfterParse = {
             ...textFields,
-            email: JSON.parse(res.data.email)[0],
+            contact_email: JSON.parse(res.data.contact_email)[0],
+            address: JSON.parse(res.data.address),
           };
 
           setFieldState((prev) => ({ ...prev, ...textFieldAfterParse }));
           setAuthState((prev) => ({
             ...prev,
             progress: res.data.progress,
-            companyForProducts: res.data.company_uuid,
+            companyForProducts: res.data.company_id,
           }));
         });
     }
@@ -114,15 +116,15 @@ const StepperFormComplex = () => {
   };
   const handleSend = () => {
     const field = {
-      fieldToUpdate: {
-        field: "is_agreed",
-        value: true,
-      },
+      is_agreed: true,
     };
     axios
       .put(`${BASE_URL}${END_POINT.ONBOARDING}${authState.uuid}`, field)
       .then((res) => {
-        console.log("ACCEPT AND SEND RES ", res);
+        setAuthState((prev) => ({
+          ...prev,
+          isAgreed: true,
+        }));
       })
       .catch((err) => console.log(err));
   };
@@ -138,7 +140,7 @@ const StepperFormComplex = () => {
         </Grid>
       ) : (
         <Grid item xs={12}>
-          <Stepper
+          {/* <Stepper
             className={classes.stepper}
             nonLinear
             activeStep={activeStep}
@@ -154,7 +156,7 @@ const StepperFormComplex = () => {
                 </StepButton>
               </Step>
             ))}
-          </Stepper>
+          </Stepper> */}
         </Grid>
       )}
       <Grid item className={classes.BoxContainer} xs={11}>
@@ -163,11 +165,7 @@ const StepperFormComplex = () => {
           <Grid item className={mixins.formBody}>
             {activeStep === 0 ? (
               <PseudoForm query={queryMatch} value={fieldState} />
-            ) : activeStep === 1 ? (
-              <FileForm query={queryMatch} />
-            ) : (
-              <TermsForm query={queryMatch} />
-            )}
+            ) : null}
           </Grid>
           <Grid item>
             <Grid container>

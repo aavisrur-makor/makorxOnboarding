@@ -17,13 +17,27 @@ const CustomAutoComplete = (props) => {
   const { authState, setAuthState } = useContext(AuthContext);
 
   useEffect(async () => {
+    console.log("THE PROPS IS", props.id);
     const dataType = await axios.get(
       `${BASE_URL}${END_POINT.UTILS}${props.dataKey}`
     );
+    console.log(
+      "THIS IS THE DATA I GET FROM THE USEEFFECT AUTO COMPLETE ",
+      dataType
+    );
+
+    // const choosenData = dataType.data.filter((data) => {
+    //   return data.id === fieldState.company_id;
+    // });
+
+    const currentData = {};
+    dataType.data.forEach(({ name, id }) => {
+      currentData[id] = name;
+    });
 
     setData(dataType.data);
-    setDataState(fieldState[props.id]);
-    setDataStateInput(fieldState[props.id]);
+    setDataState(currentData[fieldState[props.id]]);
+    setDataStateInput(currentData[fieldState[props.id]]);
   }, [fieldState[props.id]]);
 
   const handleChange = (e) => {
@@ -32,11 +46,11 @@ const CustomAutoComplete = (props) => {
     if (props.dataKey === "Company") {
       setFieldState((prev) => ({
         ...prev,
-        onboarding_has_company_asset: [],
+        checked_assets: [],
       }));
       setAuthState((prev) => ({
         ...prev,
-        companyForProducts: e && e.uuid,
+        companyForProducts: e && e.id,
       }));
     } else if (props.dataKey === "Country") {
       setAuthState((prev) => ({
@@ -46,18 +60,13 @@ const CustomAutoComplete = (props) => {
     }
 
     if (e) {
+      console.log("THIS IS THE E", e);
       field = {
-        fieldToUpdate: {
-          field: props.id,
-          value: e && e.name,
-        },
+        [props.id]: e && e.id,
       };
     } else if (!e) {
       field = {
-        fieldToUpdate: {
-          field: props.id,
-          value: null,
-        },
+        [props.id]: null,
       };
     }
 

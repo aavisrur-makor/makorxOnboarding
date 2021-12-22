@@ -94,15 +94,16 @@ const PseudoForm = function (props) {
         `${BASE_URL}${END_POINT.UTILS}${END_POINT.ASSETS}${authState.companyForProducts}`
       )
       .then((res) => {
+        console.log("THE RES DATA IN ASSET", authState.companyForProducts);
         const newProducts = {};
         res.data.forEach((product) => {
           if (!newProducts[product.asset_name]) {
             newProducts[product.asset_name] = {
-              uuids: [product.uuid],
+              uuids: [product.id],
               mode_names: [product.mode_name],
             };
           } else {
-            newProducts[product.asset_name].uuids.push(product.uuid);
+            newProducts[product.asset_name].uuids.push(product.id);
             newProducts[product.asset_name].mode_names.push(product.mode_name);
           }
         });
@@ -131,41 +132,35 @@ const PseudoForm = function (props) {
     setFieldState((prev) => {
       console.log(
         "🚀 ~ file: PseudoForm.js ~ line 131 ~ setFieldState ~ prev",
-        prev.onboarding_has_company_asset,
+        prev.checked_assets,
         e.target.value
       );
-      const index = prev.onboarding_has_company_asset.findIndex(
+      const index = prev.checked_assets.findIndex(
         (clientProduct) => clientProduct === product.uuids[0]
       );
 
       if (index === -1) {
         return {
           ...prev,
-          onboarding_has_company_asset: [
-            ...prev.onboarding_has_company_asset,
-            ...product.uuids,
-          ],
+          checked_assets: [...prev.checked_assets, ...product.uuids],
         };
       } else
         return {
           ...prev,
-          onboarding_has_company_asset:
-            prev.onboarding_has_company_asset.filter((checkedProduct) => {
-              return (
-                checkedProduct !== product.uuids[0] &&
-                checkedProduct !== product.uuids[1]
-              );
-            }),
+          checked_assets: prev.checked_assets.filter((checkedProduct) => {
+            return (
+              checkedProduct !== product.uuids[0] &&
+              checkedProduct !== product.uuids[1]
+            );
+          }),
         };
     });
 
     e.preventDefault();
 
     const field = {
-      fieldToUpdate: {
-        field: e.target.id,
-        value: product.uuids,
-        asset_name: product.asset_name,
+      company_asset: {
+        asset_id: product.uuids,
         is_add: e.target.checked,
       },
     };
@@ -175,12 +170,9 @@ const PseudoForm = function (props) {
       .catch((err) => console.log(err));
   };
 
-  const showStates = useMemo(
-    () =>
-      authState.currentCountry === "United States" ||
-      fieldState.country_id === "United States",
-    [fieldState]
-  );
+  const showStates =
+    authState.currentCountry === "United States" ||
+    fieldState.country_id === "United States";
 
   return (
     <Grid container direction="column" className={classes.root} spacing={3}>
@@ -244,7 +236,7 @@ const PseudoForm = function (props) {
                 />
               </Grid>
               {showStates && (
-                <Grid item xs={12} md={showStates ? 6 : 3}>
+                <Grid item xs={12} md={showStates ? 3 : 6}>
                   <CustomAutoComplete
                     label={formData.form1.grid2[2].label}
                     dataKey={formData.form1.grid2[2].label}
@@ -309,9 +301,7 @@ const PseudoForm = function (props) {
                             id={formData.form1.grid3[3].id}
                             value={product.asset_name}
                             checked={product.uuids.every((val) =>
-                              fieldState.onboarding_has_company_asset.includes(
-                                val
-                              )
+                              fieldState.checked_assets.includes(val)
                             )}
                             onChange={(e) => handleChange(e, product)}
                           />
